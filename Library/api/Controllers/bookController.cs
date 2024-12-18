@@ -25,13 +25,45 @@ namespace Library.api.Controllers
         }
 
         [Authorize(Roles = "1")]
+        [HttpPut]
         public async Task<IActionResult> AcceptBook(BookDTO book)
         {
             if (await BookService.AcceptBook(book.Title))
             {
                 return Ok("Book Accepted");
             }
-            return BadRequest("Book not accepted. Maybe wrong title?");
+            return NotFound("Wrong title");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetBookByTitle(string title)
+        {
+            (BookDTO book, string text) = await BookService.getBookByTitle(title);
+            if (book == null || text == null)
+            {
+                return Ok(book.Title + book.Description + text);
+            }
+            return NotFound("NoBookWithSuchTitle");
+        }
+
+        [Authorize(Roles ="1")]
+        [HttpGet]
+        public async Task<IActionResult> GetNotCheckedBooks()
+        {
+            return Ok(BookService.GetUnsafeBookS());
+        }
+
+
+        [Authorize(Roles ="1")]
+        [HttpGet]
+        public async Task<IActionResult> GetNotCheckedBookByTitle(string title)
+        {
+            (BookDTO book, string text) = await BookService.getBookByTitle(title);
+            if (book == null || text == null)
+            {
+                return Ok(book.Title + book.Description + text);
+            }
+            return NotFound("NoBookWithSuchTitle");
         }
     }
 }
